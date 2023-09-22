@@ -3,6 +3,7 @@
         "err-nonstandard-symbol",
         "undefined-global",
         "lowercase-global",
-        "unused-local"
+        "unused-local",
+        "assign-type-mismatch"
     ]
 }

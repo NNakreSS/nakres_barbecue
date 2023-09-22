@@ -7,6 +7,7 @@ BarbequeTable = {
                 0.0, -0.18, -0.16, 0.0, 0.0, 0.0
             },
             Move = 51,
+            Playback = 0
         };
 
         local player = PlayerPedId();
@@ -47,6 +48,7 @@ BarbequeTable = {
     end,
     remove = function()
         --TODO: propları tekrar kaldırma modu eklenecek.
+        Barbeque.selectCurrentTable(nil);
     end
 }
 
@@ -62,7 +64,7 @@ Animation = {
 
         if options and options.Prop and not currentProp then Animation.createProp(playerPed, options) end
 
-        TaskPlayAnim(playerPed, dict, anim, 2.0, 2.0, -1, options.Move, 0, false, false, false);
+        TaskPlayAnim(playerPed, dict, anim, 2.0, 2.0, -1, options.Move, options.Playback, false, false, false);
         RemoveAnimDict(dict);
     end,
     stop = function()
@@ -88,15 +90,22 @@ Animation = {
     end
 }
 
+
 Barbeque = {
-    dutyStatus = false,
-    smokeParticle = nil,
+    -- dutyStatus = false,
+    -- smokeParticle = nil,
+    -- currentFoodProp = nil,
+    -- currentBbqTable = nil,
+    selectCurrentTable = function(entity)
+        currentBbqTable = entity;
+    end,
+    --#region
     -- fireStatu = false,
     -- Fire = {
-    --     start = function(entity)
+    --     start = function(currentBbqTable)
     --         if not Barbeque.fireStatu then
     --             local propName = "prop_beach_fire";
-    --             local objecoords = GetOffsetFromEntityInWorldCoords(entity, 0.0, 0.0, 0.35);
+    --             local objecoords = GetOffsetFromEntityInWorldCoords(currentBbqTable, 0.0, 0.0, 0.35);
     --             loadModel(propName)
     --             local fireobj = CreateObject(propName, objecoords.x, objecoords.y,
     --                 objecoords.z, true, true, true)
@@ -107,46 +116,111 @@ Barbeque = {
     --     stop = function()
     --     end,
     -- },
-    cook = function(entity)
-        --TODO: Yemek pişime minigame olayları
-        local coords = GetOffsetFromEntityInWorldCoords(entity, 0.0, -0.7, 0.0);
-        SetEntityCoords(PlayerPedId(), coords)
-        SetEntityHeading(PlayerPedId(), GetEntityHeading(entity))
-        FreezeEntityPosition(PlayerPedId(), true)
-        Animation.start("amb@prop_human_bbq@male@idle_b", "idle_d",
-            {
-                Prop = "prop_fish_slice_01",
-                PropBone = 57005,
-                PropPlacement = {
-                    0.08, 0.0, -0.02, 0.0, -25.0, 130.0
+    --#endregion
+    cook = {
+        startCooking = function(prop, items, food)
+            local coords = GetOffsetFromEntityInWorldCoords(currentBbqTable, 0.0, -0.7, 0.0);
+            SetEntityCoords(PlayerPedId(), coords);
+            SetEntityHeading(PlayerPedId(), GetEntityHeading(currentBbqTable));
+            FreezeEntityPosition(PlayerPedId(), true);
+            Animation.start("amb@prop_human_bbq@male@idle_a", "idle_b",
+                {
+                    Prop = "prop_fish_slice_01",
+                    PropBone = 57005,
+                    PropPlacement = {
+                        0.08, 0.0, -0.02, 0.0, -25.0, 130.0
+                    },
+                    Move = 1,
+                    Playback = 1
+                });
+            loadModel(prop)
+            currentFoodProp = CreateObject(prop, GetOffsetFromEntityInWorldCoords(currentBbqTable, 0.0, 0.0, 0.94), true,
+                true,
+                true)
+            MiniGame.Start({
+                    difficultyFactor = 0.99,
+                    time = 30,
+                    halfSuccessMin = 70,
+                    valueUpSpeed = 1,
+                    img = "img/fire.webp",
                 },
-                Move = 0,
-            })
-        print("Pişirme menüsünü aç")
-    end,
-    duty = {
-        start = function(entity)
-            --TODO: Müşteri beklemeye başla
-            if not dutyStatus then
-                local coords = GetOffsetFromEntityInWorldCoords(entity, 0.0, 0.0, 0.35);
-                RequestNamedPtfxAsset("core")
-                while not HasNamedPtfxAssetLoaded("core") do
-                    Citizen.Wait(1)
+                function()
+                    Barbeque.cook.endCooking("success", items, food)
+                end,
+                function()
+                    Barbeque.cook.endCooking("fail")
+                end,
+                function()
+                    Barbeque.cook.endCooking("halfSuccess", items, food)
                 end
-                UseParticleFxAssetNextCall("core")
-                smokeParticle = StartParticleFxLoopedAtCoord("ent_amb_beach_campfire", coords.x, coords.y, coords.z,
-                    0.0, 0.0, 0.0, 1.0, false, false, false, 0);
-                dutyStatus = true;
-                print(smokeParticle)
+            )
+        end,
+        endCooking = function(type, items, food)
+            DeleteEntity(currentFoodProp)
+            currentFoodProp = nil;
+            FreezeEntityPosition(PlayerPedId(), false);
+            Animation.stop();
+            if type == "success" then
+                print("Pişirdin");
+            elseif type == "halfSuccess" then
+                print("Yarı pişmiş");
+            else
+                print("beceremedin");
             end
         end,
-        stop = function()
-            --TODO: Müşteri beklemeyi durdur
-            if dutyStatus then
-                dutyStatus = false;
-                StopParticleFxLooped(smokeParticle, false)
-                print("işten ayrıldın")
+        menu = function(entity)
+            Barbeque.selectCurrentTable(entity);
+            lib.registerContext({
+                id = 'food_menu',
+                title = 'Yemekler',
+                options = getFoods()
+            })
+            lib.registerContext({
+                id = 'cookMenu',
+                title = 'Barbeque Menu',
+                options = {
+                    {
+                        title = 'Mesai',
+                        description = 'İşe başla / ayrıl',
+                        icon = 'circle',
+                        iconColor = Barbeque.dutyStatus and 'green' or 'red',
+                        onSelect = function()
+                            Barbeque.duty.toggle()
+                        end,
+                        metadata = {
+                            { label = 'Durum', value = Barbeque.dutyStatus and "Aktif" or "Boşta" },
+                        },
+                    },
+                    {
+                        title = 'Birşeyler Pişir',
+                        menu = 'food_menu',
+                        icon = 'bars'
+                    },
+                }
+            })
+            lib.showContext('cookMenu')
+        end
+    },
+    duty = {
+        toggle = function()
+            --TODO: Müşteri beklemeye başla
+            if not Barbeque.dutyStatus then
+                --#region
+                -- local coords = GetOffsetFromEntityInWorldCoords(currentBbqTable, 0.0, 0.0, 1.0);
+                -- RequestNamedPtfxAsset("core")
+                -- while not HasNamedPtfxAssetLoaded("core") do
+                --     Citizen.Wait(1)
+                -- end
+                -- UseParticleFxAssetNextCall("core")
+                -- smokeParticle = StartParticleFxLoopedAtCoord("ent_amb_smoke_foundry", coords.x, coords.y, coords.z,
+                --     0.0, 0.0, 0.0, 0.1, false, false, false, 0);
+                --#endregion
+                -- print(smokeParticle);
+            else
+                -- StopParticleFxLooped(smokeParticle, false);
+                print("işten ayrıldın");
             end
+            Barbeque.dutyStatus = not Barbeque.dutyStatus;
         end
     }
 }

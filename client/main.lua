@@ -41,46 +41,25 @@ AddEventHandler('nk:barbeque:setObejctData', function(data)
     Props = data;
 end)
 
-RegisterNetEvent('nk:barbeque:targetSelect');
-AddEventHandler('nk:barbeque:targetSelect', function(type, entity)
-    if type == "duty" then
-        Barbeque.duty.start(entity);
-    elseif type == "cook" then
-        Barbeque.cook(entity);
-    end
+RegisterNetEvent('nk:barbeque:openBbqMenu');
+AddEventHandler('nk:barbeque:openBbqMenu', function(entity)
+    Barbeque.cook.menu(entity);
 end)
 
 CreateThread(function()
-    exports['qb-target']:AddTargetModel({ "prop_bbq_1" },
-        {
-            options = {
-                {
-                    num = 1,
-                    type = "client",
-                    event = "nk:barbeque:targetSelect",
-                    icon = 'fa-solid fa-fire',
-                    label = 'İşe başla',
-                    targeticon = 'fa-solid fa-fire-burner',
-                    action = function(entity)
-                        TriggerEvent('nk:barbeque:targetSelect', "duty", entity)
-                    end
+    if Config.target == "qb" then
+        exports['qb-target']:AddTargetModel({ "prop_bbq_1" },
+            {
+                options = {
+                    {
+                        label = 'Bbq Menu',
+                        targeticon = 'fa-solid fa-fire-burner',
+                        action = function(entity)
+                            TriggerEvent('nk:barbeque:openBbqMenu', entity)
+                        end
+                    }
                 },
-                {
-                    num = 2,
-                    type = "client",
-                    event = "nk:barbeque:targetSelect",
-                    icon = 'fa-solid fa-utensils',
-                    label = 'Pişir',
-                    targeticon = 'fa-solid fa-fire-burner',
-                    action = function(entity)
-                        TriggerEvent('nk:barbeque:targetSelect', "cook", entity)
-                    end
-                }
-            },
-            distance = 1.5,
-        })
-end)
-
-RegisterCommand('bbqc', function()
-    BarbequeTable.create("prop_bbq_1");
+                distance = 1.5,
+            })
+    end
 end)
