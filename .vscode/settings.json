@@ -1,0 +1,8 @@
+{
+    "Lua.diagnostics.disable": [
+        "err-nonstandard-symbol",
+        "undefined-global",
+        "lowercase-global",
+        "unused-local"
+    ]
+}
