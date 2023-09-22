@@ -1,5 +1,3 @@
-MiniGame = exports['nakres_skill_minigame']:GetMiniGame();
-
 function loadModel(model)
     local timer = 0;
     RequestModel(model);
@@ -20,17 +18,38 @@ function getFoods()
             icon = f.icon or 'check',
             arrow = false,
             metadata = f.metarials,
-            -- args = {
-            --     ["food"] = f.item,
-            --     ["items"] = f.metarials
-            -- },
             onSelect = function()
-                Barbeque.cook.startCooking(f.prop, f.metarials, f.item)
+                Barbeque.cook.startCooking(f.prop, f.metarials, f.item, f.skillBarImg)
             end,
         }
         foodOptions[#foodOptions + 1] = food;
     end
     return foodOptions
+end
+
+function startBbqPropCheck()
+    while true do
+        pcord = GetEntityCoords(PlayerPedId())
+        for _i, v in ipairs(Props) do
+            local coord = v.coords
+            dst = #(pcord - coord)
+            local areaInProp = GetClosestObjectOfType(coord, 1.5, GetHashKey(v.model), 0, 0, 0)
+            if dst < 150 then
+                if not DoesEntityExist(areaInProp) then
+                    loadModel(v.model);
+                    areaInProp = CreateObjectNoOffset(v.model, v.coords);
+                    SetEntityHeading(areaInProp, v.heading);
+                    PlaceObjectOnGroundProperly(areaInProp);
+                    SetModelAsNoLongerNeeded(v.model);
+                end
+            else
+                if DoesEntityExist(areaInProp) then
+                    DeleteEntity(areaInProp);
+                end
+            end
+        end
+        Citizen.Wait(5000)
+    end
 end
 
 RegisterCommand('bbqc', function()

@@ -90,7 +90,6 @@ Animation = {
     end
 }
 
-
 Barbeque = {
     -- dutyStatus = false,
     -- smokeParticle = nil,
@@ -118,7 +117,7 @@ Barbeque = {
     -- },
     --#endregion
     cook = {
-        startCooking = function(prop, items, food)
+        startCooking = function(prop, items, food, skillBarImg)
             local coords = GetOffsetFromEntityInWorldCoords(currentBbqTable, 0.0, -0.7, 0.0);
             SetEntityCoords(PlayerPedId(), coords);
             SetEntityHeading(PlayerPedId(), GetEntityHeading(currentBbqTable));
@@ -142,7 +141,7 @@ Barbeque = {
                     time = 30,
                     halfSuccessMin = 70,
                     valueUpSpeed = 1,
-                    img = "img/fire.webp",
+                    img = skillBarImg or "img/fire.webp",
                 },
                 function()
                     Barbeque.cook.endCooking("success", items, food)

@@ -1,29 +1,9 @@
-local Props = {};
+Props = {};
+MiniGame = exports['nakres_skill_minigame']:GetMiniGame();
 
 Citizen.CreateThread(function()
     TriggerServerEvent('nk:barbeque:playerConnecting');
-    while true do
-        pcord = GetEntityCoords(PlayerPedId())
-        for _i, v in ipairs(Props) do
-            local coord = v.coords
-            dst = #(pcord - coord)
-            local areaInProp = GetClosestObjectOfType(coord, 1.5, GetHashKey(v.model), 0, 0, 0)
-            if dst < 150 then
-                if not DoesEntityExist(areaInProp) then
-                    loadModel(v.model);
-                    areaInProp = CreateObjectNoOffset(v.model, v.coords);
-                    SetEntityHeading(areaInProp, v.heading);
-                    PlaceObjectOnGroundProperly(areaInProp);
-                    SetModelAsNoLongerNeeded(v.model);
-                end
-            else
-                if DoesEntityExist(areaInProp) then
-                    DeleteEntity(areaInProp);
-                end
-            end
-        end
-        Citizen.Wait(5000)
-    end
+    startBbqPropCheck();
 end)
 
 RegisterNetEvent('nk:barbeque:spawnNewObject');
