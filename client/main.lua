@@ -11,9 +11,9 @@ AddEventHandler('nk:barbeque:spawnNewObject', function(data)
     Props[#Props + 1] = data;
 end)
 
-RegisterNetEvent('nk:barbeque:setObejctData');
-AddEventHandler('nk:barbeque:setObejctData', function(data)
-    Props = data;
+RegisterNetEvent('nk:barbeque:deleteObject');
+AddEventHandler('nk:barbeque:deleteObject', function(coord, model)
+    deleteBbqTable(coord, model);
 end)
 
 RegisterNetEvent('nk:barbeque:setObejctData');
@@ -28,7 +28,7 @@ end)
 
 CreateThread(function()
     if Config.target == "qb" then
-        exports['qb-target']:AddTargetModel({ "prop_bbq_1" },
+        exports['qb-target']:AddTargetModel({ Config.BBQprop },
             {
                 options = {
                     {
