@@ -60,9 +60,9 @@ end)
 Citizen.CreateThread(function()
     if QBCore then
         local items = {
-            ["barbeque"] = {
-                name = "barbeque",
-                label = "barbeque",
+            ["BBQprop"] = {
+                name = "BBQprop",
+                label = "BBQ",
                 weight = 15,
                 type = 'item',
                 image = "barbecue.png",

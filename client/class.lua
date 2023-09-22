@@ -2,7 +2,7 @@ BarbequeTable = {
 
     create = function(model, propmodel)
         AnimationOptions = {
-            Prop = propmodel or "prop_tool_box_06",
+            Prop = propmodel,
             PropBone = 28422,
             PropPlacement = {
                 0.0, -0.18, -0.16, 0.0, 0.0, 0.0
@@ -46,8 +46,15 @@ BarbequeTable = {
         local currentCoord = GetEntityCoords(obj)
         local model = GetEntityModel(obj)
         TriggerServerEvent("nk:barbeque:deletePropCoord", currentCoord, model)
-        addItem(Config.BBQprop, 1)
-        Barbeque.selectCurrentTable(nil);
+        addItem("BBQprop", 1)
+        Barbeque.currentBbqTable = nil;
+        Barbeque.dutyStatus = false;
+        Barbeque.waitCustomer = nil;
+        lib.notify({
+            title = 'Toparlandın !',
+            description = 'Mangalı toparladın',
+            type = 'info'
+        })
     end
 }
 
@@ -92,19 +99,16 @@ Barbeque = {
     -- dutyStatus = false,
     -- currentFoodProp = nil,
     -- currentBbqTable = nil,
+    -- waitCustomer = nil,
     -- activeCustomer = nil,
-
-    selectCurrentTable = function(entity)
-        currentBbqTable = entity;
-    end,
-
+    -- activeOrder = nil
     cook = {
 
         startCooking = function(prop, items, food, skillBarData)
             if removeItemCheckCount(items) then
-                local coords = GetOffsetFromEntityInWorldCoords(currentBbqTable, 0.0, -0.7, 0.0);
+                local coords = GetOffsetFromEntityInWorldCoords(Barbeque.currentBbqTable, 0.0, -0.7, 0.0);
                 SetEntityCoords(PlayerPedId(), coords);
-                SetEntityHeading(PlayerPedId(), GetEntityHeading(currentBbqTable));
+                SetEntityHeading(PlayerPedId(), GetEntityHeading(Barbeque.currentBbqTable));
                 FreezeEntityPosition(PlayerPedId(), true);
                 Animation.start("amb@prop_human_bbq@male@idle_a", "idle_b",
                     {
@@ -117,7 +121,8 @@ Barbeque = {
                         Playback = 1
                     });
                 loadModel(prop)
-                currentFoodProp = CreateObject(prop, GetOffsetFromEntityInWorldCoords(currentBbqTable, 0.0, 0.0, 0.94),
+                Barbeque.currentFoodProp = CreateObject(prop,
+                    GetOffsetFromEntityInWorldCoords(Barbeque.currentBbqTable, 0.0, 0.0, 0.94),
                     true,
                     true,
                     true)
@@ -130,25 +135,37 @@ Barbeque = {
                     end
                 )
             else
-                print("Gerekli malzemelerin yok")
+                lib.notify({
+                    title = 'Yetersiz !',
+                    description = 'Bunun için gerekli mazemelere sahip değilsin',
+                    type = 'error'
+                })
             end
         end,
 
         endCooking = function(type, food)
-            DeleteEntity(currentFoodProp)
-            currentFoodProp = nil;
+            DeleteEntity(Barbeque.currentFoodProp)
+            Barbeque.currentFoodProp = nil;
             FreezeEntityPosition(PlayerPedId(), false);
             Animation.stop();
             if type == "success" then
-                print("Pişirdin");
+                lib.notify({
+                    title = 'Leziz !',
+                    description = 'Hazır onu yemek için müşteriler sabırsız...',
+                    type = 'success'
+                })
                 addItem(food, 1)
             else
-                print("beceremedin");
+                lib.notify({
+                    title = 'Beceremedin !',
+                    description = 'Ateşte çok bekleterek tüm mazemeleri yaktın.',
+                    type = 'error'
+                })
             end
         end,
 
         menu = function(entity)
-            Barbeque.selectCurrentTable(entity);
+            Barbeque.currentBbqTable = entity;
             lib.registerContext({
                 id = 'food_menu',
                 title = 'Yemekler',
@@ -175,7 +192,7 @@ Barbeque = {
                         title = 'Mangalı Kaldır',
                         icon = 'box',
                         onSelect = function()
-                            BarbequeTable.remove(currentBbqTable)
+                            BarbequeTable.remove(Barbeque.currentBbqTable)
                         end,
                     },
                     {
@@ -193,11 +210,68 @@ Barbeque = {
         toggle = function()
             if not Barbeque.dutyStatus then
                 onDutyWaitCustomerNpc();
-                print("başladın");
+                lib.notify({
+                    title = 'BBQ İşine başladın',
+                    description = 'Yoldan geçen müşterileri bekle , daha fazla müşteri çekmek için başarılı satışlar yap',
+                    type = 'info'
+                })
             else
-                print("işten ayrıldın");
+                lib.notify({
+                    title = 'BBQ İşinden ayrıldın',
+                    description = 'Dilediğin zaman tekrar başlamak için mangalı kaldırmayı unutma',
+                    type = 'info'
+                })
             end
             Barbeque.dutyStatus = not Barbeque.dutyStatus;
+        end
+    },
+
+    order = {
+        take = function(entity)
+            local foods = {}
+            for index, value in ipairs(Config.Foods) do
+                foods[index] = value
+            end
+            local randomOrderCount = math.random(1, 3)
+            local orders           = {}
+            local text             = '';
+            for i = 1, randomOrderCount, 1 do
+                print(#Config.Foods)
+                local random     = math.floor(math.random(1, #foods))
+                local randomFood = foods[random]
+                orders[i]        = {
+                    name = randomFood.name,
+                    item = randomFood.item
+                }
+                text             = text .. "  \n " .. string.format('- %s', randomFood.name)
+                table.remove(foods, random)
+            end
+            Barbeque.activeCustomer = Barbeque.waitCustomer;
+            local confirm = lib.alertDialog({
+                header = 'Sipariş',
+                content = text,
+                centered = true,
+                cancel = true
+            })
+            if confirm == "confirm" then
+                lib.showTextUI("### Beklenen siparişler\t\n" .. text, {
+                    position = "left-center",
+                    icon = "clipboard"
+                })
+                Barbeque.activeOrder = orders;
+                TaskStandStill(Barbeque.activeCustomer, -1);
+                lib.notify({
+                    title = 'Siparişleri aldın hazırlamya başla',
+                    type = 'info'
+                })
+                removePedTarget(Barbeque.activeCustomer);
+            else
+                removePedTarget(Barbeque.activeCustomer);
+                TaskStandStill(Barbeque.activeCustomer, 1);
+                Barbeque.activeCustomer = nil;
+                Barbeque.waitCustomer = nil;
+                Barbeque.activeOrder = nil;
+            end
         end
     }
 }

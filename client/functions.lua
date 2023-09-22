@@ -66,28 +66,76 @@ function deleteBbqTable(currentCoord, model)
     end
 end
 
+local lastCustomer;
 function onDutyWaitCustomerNpc()
     Citizen.CreateThread(function()
         local ped = PlayerPedId()
-        while Barbeque.dutyStatus and not Barbeque.activeCustomer do
-            local coords = GetEntityCoords(ped)
-            local retval, outPed = GetClosestPed(coords.x, coords.y, coords.z, 10.0, 1, 0, 1, 1, 26)
-            if retval and math.random() > 0.1 then
-                Barbeque.activeCustomer = outPed;
-                TaskGoToEntity(outPed, ped, -1, 1.5, 1.0, 1073741824, 0)
-                while true do
-                    dist = #(coords - GetEntityCoords(outPed))
-                    if dist <= 2.0 then
-                        TaskStandStill(outPed, 10 * 1000)
-                        TaskLookAtEntity(outPed, ped, -1)
-                        break;
+        while true do
+            local sleep = 3000
+            if Barbeque.dutyStatus and not Barbeque.waitCustomer then
+                print("bekleniyor ...")
+                sleep = 1000
+                local coords = GetEntityCoords(ped)
+                local retval, outPed = GetClosestPed(coords.x, coords.y, coords.z, 10.0, 1, 0, 1, 1, 26)
+                if lastCustomer ~= outPed and retval and math.random() > 0.1 then
+                    Barbeque.waitCustomer = outPed;
+                    TaskGoToEntity(outPed, ped, -1, 1.5, 1.0, 1073741824, 0)
+                    while true do
+                        dist = #(coords - GetEntityCoords(outPed))
+                        if dist <= 2.0 then
+                            addTargetCustomerNpc(outPed)
+                            TaskStandStill(outPed, 15000);
+                            CreateThread(function()
+                                Wait(15000)
+                                if not Barbeque.activeCustomer then
+                                    lib.notify({
+                                        title = 'Kaçırdın !',
+                                        description = "Çok beklettiğin için müşteri uzaklaştı",
+                                        type = 'error'
+                                    })
+                                    removePedTarget(Barbeque.waitCustomer);
+                                end
+                            end)
+                            TaskLookAtEntity(outPed, ped, -1);
+                            lastCustomer = outPed;
+                            lib.notify({
+                                title = 'Müşteri geldi !',
+                                type = 'info'
+                            })
+                            break;
+                        end
+                        Citizen.Wait(500)
                     end
-                    Citizen.Wait(500)
                 end
             end
-            Citizen.Wait(1000)
+            Citizen.Wait(sleep)
         end
     end)
+end
+
+function addTargetCustomerNpc(npc)
+    if Config.target == "qb" then
+        exports['qb-target']:AddTargetEntity(npc,
+            {
+                options = {
+                    {
+                        label = 'Sipariş Al',
+                        targeticon = 'fa-solid fa-comments',
+                        action = function(entity)
+                            TriggerEvent('nk:barbeque:takeOrder', npc)
+                        end
+                    }
+                },
+                distance = 1.5,
+            })
+    end
+end
+
+function removePedTarget(npc)
+    if Config.target == "qb" then
+        print(npc)
+        exports['qb-target']:RemoveTargetEntity(npc, 'Sipariş Al')
+    end
 end
 
 function removeItemCheckCount(items)
@@ -99,5 +147,5 @@ function addItem(item, count)
 end
 
 RegisterCommand('bbqc', function()
-    BarbequeTable.create(Config.BBQprop);
+    BarbequeTable.create(Config.BBQprop, "prop_tool_box_06");
 end)

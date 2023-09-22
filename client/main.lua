@@ -26,6 +26,12 @@ AddEventHandler('nk:barbeque:openBbqMenu', function(entity)
     Barbeque.cook.menu(entity);
 end)
 
+RegisterNetEvent('nk:barbeque:takeOrder');
+AddEventHandler('nk:barbeque:takeOrder', function(entity)
+    Barbeque.activeOrder = true; --TODO: bu değişken sipariş bilgilerini tutacak ;)
+    Barbeque.order.take(entity);
+end)
+
 CreateThread(function()
     if Config.target == "qb" then
         exports['qb-target']:AddTargetModel({ Config.BBQprop },
