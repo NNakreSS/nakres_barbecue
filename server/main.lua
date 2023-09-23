@@ -1,4 +1,4 @@
-local Props = {}
+local Props = {};
 local QBCore = exports['qb-core']:GetCoreObject();
 
 RegisterServerEvent('nk:barbeque:spawnNewObject');
@@ -10,16 +10,15 @@ AddEventHandler('nk:barbeque:spawnNewObject', function(...)
         heading = heading
     }
     TriggerClientEvent('nk:barbeque:spawnNewObject', -1, data);
-    Props[#Props + 1] = data
+    Props[#Props + 1] = data;
 end);
 
 RegisterServerEvent('nk:barbeque:deletePropCoord');
 AddEventHandler('nk:barbeque:deletePropCoord', function(deleteCoord, model)
     for key, value in ipairs(Props) do
-        local dist = #(value.coords - deleteCoord)
+        local dist = #(value.coords - deleteCoord);
         if dist <= 1.0 then
-            print("sildim")
-            table.remove(Props, key)
+            table.remove(Props, key);
             break;
         end
     end
@@ -33,15 +32,16 @@ end)
 
 RegisterServerEvent('nk:barbeque:addItem');
 AddEventHandler("nk:barbeque:addItem", function(item, count)
-    local src = source
-    addItemInventory(src, item, count)
+    local src = source;
+    addItemInventory(src, item, count);
 end)
 
 lib.callback.register('nk:barbeque:removeItemCheck', function(source, items)
     if QBCore then
-        local Player = QBCore.Functions.GetPlayer(source)
+        local Player = QBCore.Functions.GetPlayer(source);
         for i, key in ipairs(items) do
-            local haveItem = Player.Functions.GetItemByName(key.item)
+            key.value = key.value or 1;
+            local haveItem = Player.Functions.GetItemByName(key.item);
             if haveItem then
                 if haveItem.amount < key.value then
                     return false;
@@ -52,7 +52,7 @@ lib.callback.register('nk:barbeque:removeItemCheck', function(source, items)
         end
     end
     for i, key in ipairs(items) do
-        removeItem(source, key.item, key.value)
+        removeItem(source, key.item, key.value);
     end
     return true;
 end)
@@ -60,8 +60,8 @@ end)
 Citizen.CreateThread(function()
     if QBCore then
         local items = {
-            ["BBQprop"] = {
-                name = "BBQprop",
+            ["bbq_prop"] = {
+                name = "bbq_prop",
                 label = "BBQ",
                 weight = 15,
                 type = 'item',
@@ -71,8 +71,8 @@ Citizen.CreateThread(function()
                 shouldClose = true,
                 combinable = nil,
                 description = "Barbekü mangalı"
-            }
-        }
+            },
+        };
         for _i, item in ipairs(Config.Foods) do
             items[item.item] = {
                 name = item.item,
@@ -85,7 +85,7 @@ Citizen.CreateThread(function()
                 shouldClose = true,
                 combinable = nil,
                 description = item.description or 'Leziz bir yemek'
-            }
+            };
             for key, val in pairs(item.metarials) do
                 items[val.item] = {
                     name = val.item,
@@ -98,24 +98,24 @@ Citizen.CreateThread(function()
                     shouldClose = true,
                     combinable = nil,
                     description = val.description or 'Yemeklik malzemeler'
-                }
+                };
             end
         end
-        QBCore.Functions.AddItems(items)
+        QBCore.Functions.AddItems(items);
     end
 end)
 
 
 function removeItem(source, item, count)
     if QBCore then
-        local Player = QBCore.Functions.GetPlayer(source)
-        Player.Functions.RemoveItem(item, count)
+        local Player = QBCore.Functions.GetPlayer(source);
+        Player.Functions.RemoveItem(item, count);
     end
 end
 
 function addItemInventory(src, item, count)
     if QBCore then
-        local Player = QBCore.Functions.GetPlayer(src)
-        Player.Functions.AddItem(item, count)
+        local Player = QBCore.Functions.GetPlayer(src);
+        Player.Functions.AddItem(item, count);
     end
 end

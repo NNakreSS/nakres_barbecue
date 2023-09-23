@@ -28,24 +28,25 @@ end)
 
 RegisterNetEvent('nk:barbeque:takeOrder');
 AddEventHandler('nk:barbeque:takeOrder', function(entity)
-    Barbeque.activeOrder = true; --TODO: bu değişken sipariş bilgilerini tutacak ;)
     Barbeque.order.take(entity);
+end)
+
+RegisterNetEvent('nk:barbeque:giveOrder');
+AddEventHandler('nk:barbeque:giveOrder', function(entity)
+    Barbeque.order.give(entity);
 end)
 
 CreateThread(function()
     if Config.target == "qb" then
-        exports['qb-target']:AddTargetModel({ Config.BBQprop },
-            {
-                options = {
-                    {
-                        label = 'Bbq Menu',
-                        targeticon = 'fa-solid fa-fire-burner',
-                        action = function(entity)
-                            TriggerEvent('nk:barbeque:openBbqMenu', entity)
-                        end
-                    }
-                },
-                distance = 1.5,
-            })
+        exports['qb-target']:AddTargetModel({ Config.BBQprop }, {
+            options = { {
+                label = 'Bbq Menu',
+                targeticon = 'fa-solid fa-fire-burner',
+                action = function(entity)
+                    TriggerEvent('nk:barbeque:openBbqMenu', entity)
+                end
+            } },
+            distance = 1.5
+        })
     end
 end)

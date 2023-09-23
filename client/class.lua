@@ -36,8 +36,12 @@ BarbequeTable = {
                     TriggerServerEvent('nk:barbeque:spawnNewObject', model, coord, heading)
                     Animation.stop();
                     break;
+                elseif IsControlPressed(0, 73) then
+                    DeleteEntity(object)
+                    Animation.stop();
+                    break;
                 end
-                Wait(10)
+                Wait(30)
             end;
         end);
     end,
@@ -46,10 +50,10 @@ BarbequeTable = {
         local currentCoord = GetEntityCoords(obj)
         local model = GetEntityModel(obj)
         TriggerServerEvent("nk:barbeque:deletePropCoord", currentCoord, model)
-        addItem("BBQprop", 1)
+        addItem("bbq_prop", 1)
         Barbeque.currentBbqTable = nil;
         Barbeque.dutyStatus = false;
-        Barbeque.waitCustomer = nil;
+        cancelCustomerNpc(Barbeque.activeCustomer);
         lib.notify({
             title = 'Toparlandın !',
             description = 'Mangalı toparladın',
@@ -61,14 +65,20 @@ BarbequeTable = {
 Animation = {
     currentProp = nil,
     start = function(dict, anim, options)
-        local playerPed = PlayerPedId();
+        local playerPed = options and options.ped or PlayerPedId();
         RequestAnimDict(dict);
         while not HasAnimDictLoaded(dict) do
             Citizen.Wait(10)
         end
         if options and options.Prop and not currentProp then Animation.createProp(playerPed, options) end
-        TaskPlayAnim(playerPed, dict, anim, 2.0, 2.0, -1, options.Move, options.Playback, false, false, false);
+        TaskPlayAnim(playerPed, dict, anim, 2.0, 2.0, -1, options and options.Move or 0,
+            options and options.Playback or 0, false,
+            false,
+            false);
         RemoveAnimDict(dict);
+        if options and options.duration then
+            Citizen.Wait(2000)
+        end
     end,
 
     stop = function()
@@ -96,12 +106,14 @@ Animation = {
 }
 
 Barbeque = {
+    --#region Properties
     -- dutyStatus = false,
     -- currentFoodProp = nil,
     -- currentBbqTable = nil,
     -- waitCustomer = nil,
     -- activeCustomer = nil,
     -- activeOrder = nil
+    --#endregion
     cook = {
 
         startCooking = function(prop, items, food, skillBarData)
@@ -209,13 +221,14 @@ Barbeque = {
     duty = {
         toggle = function()
             if not Barbeque.dutyStatus then
-                onDutyWaitCustomerNpc();
+                onDutyWaitCustomerNpc(Barbeque.currentBbqTable);
                 lib.notify({
                     title = 'BBQ İşine başladın',
                     description = 'Yoldan geçen müşterileri bekle , daha fazla müşteri çekmek için başarılı satışlar yap',
                     type = 'info'
                 })
             else
+                if Barbeque.waitCustomer then cancelCustomerNpc(Barbeque.waitCustomer) end
                 lib.notify({
                     title = 'BBQ İşinden ayrıldın',
                     description = 'Dilediğin zaman tekrar başlamak için mangalı kaldırmayı unutma',
@@ -228,49 +241,81 @@ Barbeque = {
 
     order = {
         take = function(entity)
-            local foods = {}
+            local plPed = PlayerPedId();
+            Barbeque.activeCustomer = Barbeque.waitCustomer;
+            TaskLookAtEntity(Barbeque.waitCustomer, plPed, -1, 2048, 3)
+            TaskTurnPedToFaceEntity(Barbeque.waitCustomer, plPed, -1)
+            Animation.start("special_ped@jane@monologue_5@monologue_5c", "brotheradrianhasshown_2",
+                { ped = Barbeque.activeCustomer });
+            local AnimationOptions = {
+                Prop = "prop_notepad_01",
+                PropBone = 18905,
+                PropPlacement = { 0.1, 0.02, 0.05, 10.0, 0.0, 0.0 },
+                Move = 0,
+                Playback = 0
+            };
+            Animation.start("missheistdockssetup1clipboard@base", "base", AnimationOptions);
+            local foods = {};
             for index, value in ipairs(Config.Foods) do
-                foods[index] = value
+                foods[index] = value;
             end
             local randomOrderCount = math.random(1, 3)
             local orders           = {}
             local text             = '';
             for i = 1, randomOrderCount, 1 do
-                print(#Config.Foods)
                 local random     = math.floor(math.random(1, #foods))
                 local randomFood = foods[random]
                 orders[i]        = {
                     name = randomFood.name,
                     item = randomFood.item
                 }
-                text             = text .. "  \n " .. string.format('- %s', randomFood.name)
+                text             = text .. string.format('\n- %s', randomFood.name)
                 table.remove(foods, random)
             end
-            Barbeque.activeCustomer = Barbeque.waitCustomer;
+            FreezeEntityPosition(Barbeque.activeCustomer, true);
             local confirm = lib.alertDialog({
                 header = 'Sipariş',
                 content = text,
                 centered = true,
                 cancel = true
             })
-            if confirm == "confirm" then
-                lib.showTextUI("### Beklenen siparişler\t\n" .. text, {
-                    position = "left-center",
-                    icon = "clipboard"
-                })
-                Barbeque.activeOrder = orders;
-                TaskStandStill(Barbeque.activeCustomer, -1);
+            if Barbeque.activeCustomer then
+                if confirm == "confirm" then
+                    lib.showTextUI("### Beklenen siparişler\n" .. text, {
+                        position = "left-center",
+                        icon = "clipboard"
+                    })
+                    Barbeque.activeOrder = orders;
+                    TaskStandStill(Barbeque.activeCustomer, -1);
+                    lib.notify({
+                        title = 'Siparişleri aldın hazırlamya başla',
+                        type = 'info'
+                    })
+                    removePedTarget(Barbeque.activeCustomer);
+                    addTargetCustomerNpc(Barbeque.activeCustomer, "giveOrder");
+                else
+                    cancelCustomerNpc(Barbeque.activeCustomer)
+                end
+            end
+            Animation.stop();
+        end,
+
+        give = function(entity)
+            local items = Barbeque.activeOrder;
+            local isHaveOrder = lib.callback.await('nk:barbeque:removeItemCheck', false, items);
+            if isHaveOrder then
                 lib.notify({
-                    title = 'Siparişleri aldın hazırlamya başla',
-                    type = 'info'
+                    title = 'Siparişleri Teslim ettin',
+                    type = 'success'
                 })
-                removePedTarget(Barbeque.activeCustomer);
+                Animation.start("mp_common", "givetake1_a")
+                Animation.start("mp_common", "givetake1_a", { ped = Barbeque.activeCustomer, duration = true })
+                cancelCustomerNpc(Barbeque.activeCustomer)
             else
-                removePedTarget(Barbeque.activeCustomer);
-                TaskStandStill(Barbeque.activeCustomer, 1);
-                Barbeque.activeCustomer = nil;
-                Barbeque.waitCustomer = nil;
-                Barbeque.activeOrder = nil;
+                lib.notify({
+                    title = 'İstenenlere sahip değilsin',
+                    type = 'error'
+                })
             end
         end
     }
