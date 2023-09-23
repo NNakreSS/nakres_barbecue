@@ -38,7 +38,7 @@ end)
 
 CreateThread(function()
     if Config.target == "qb" then
-        exports['qb-target']:AddTargetModel({ Config.BBQprop }, {
+        exports['qb-target']:AddTargetModel(Config.BBQprop, {
             options = { {
                 label = 'Bbq Menu',
                 targeticon = 'fa-solid fa-fire-burner',

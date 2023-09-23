@@ -53,7 +53,7 @@ BarbequeTable = {
         addItem("bbq_prop", 1)
         Barbeque.currentBbqTable = nil;
         Barbeque.dutyStatus = false;
-        cancelCustomerNpc(Barbeque.activeCustomer);
+        cancelCustomerNpc(Barbeque.waitCustomer);
         lib.notify({
             title = 'Toparlandın !',
             description = 'Mangalı toparladın',
@@ -114,7 +114,8 @@ Barbeque = {
     -- activeCustomer = nil,
     -- activeOrder = nil
     --#endregion
-    cook = {
+    recognition = 20,
+    cook        = {
 
         startCooking = function(prop, items, food, skillBarData)
             if removeItemCheckCount(items) then
@@ -178,6 +179,7 @@ Barbeque = {
 
         menu = function(entity)
             Barbeque.currentBbqTable = entity;
+            local schemaColor = getColorShema();
             lib.registerContext({
                 id = 'food_menu',
                 title = 'Yemekler',
@@ -188,6 +190,17 @@ Barbeque = {
                 id = 'cookMenu',
                 title = 'Barbeque Menu',
                 options = {
+                    {
+                        title = 'Tanınırlık',
+                        description = 'Çevre tanırnırlığınız müşterilerin dikkatini çeker',
+                        icon = 'ranking-star',
+                        iconColor = schemaColor,
+                        progress = Barbeque.recognition,
+                        colorScheme = schemaColor,
+                        metadata = {
+                            { label = 'Tanınırlık', value = "%" .. Barbeque.recognition },
+                        },
+                    },
                     {
                         title = 'Mesai',
                         description = 'İşe başla / ayrıl',
@@ -218,7 +231,7 @@ Barbeque = {
         end
     },
 
-    duty = {
+    duty        = {
         toggle = function()
             if not Barbeque.dutyStatus then
                 onDutyWaitCustomerNpc(Barbeque.currentBbqTable);
@@ -239,12 +252,12 @@ Barbeque = {
         end
     },
 
-    order = {
+    order       = {
         take = function(entity)
             local plPed = PlayerPedId();
             Barbeque.activeCustomer = Barbeque.waitCustomer;
-            TaskLookAtEntity(Barbeque.waitCustomer, plPed, -1, 2048, 3)
-            TaskTurnPedToFaceEntity(Barbeque.waitCustomer, plPed, -1)
+            SetEntityHeading(Barbeque.waitCustomer, GetEntityHeading(plPed) - 180)
+            lookEntityToPlayer();
             Animation.start("special_ped@jane@monologue_5@monologue_5c", "brotheradrianhasshown_2",
                 { ped = Barbeque.activeCustomer });
             local AnimationOptions = {
@@ -267,7 +280,8 @@ Barbeque = {
                 local randomFood = foods[random]
                 orders[i]        = {
                     name = randomFood.name,
-                    item = randomFood.item
+                    item = randomFood.item,
+                    price = randomFood.price,
                 }
                 text             = text .. string.format('\n- %s', randomFood.name)
                 table.remove(foods, random)
@@ -294,6 +308,7 @@ Barbeque = {
                     removePedTarget(Barbeque.activeCustomer);
                     addTargetCustomerNpc(Barbeque.activeCustomer, "giveOrder");
                 else
+                    Barbeque.recognition -= (Config.recognitionDownValue) / 2;
                     cancelCustomerNpc(Barbeque.activeCustomer)
                 end
             end
@@ -310,7 +325,13 @@ Barbeque = {
                 })
                 Animation.start("mp_common", "givetake1_a")
                 Animation.start("mp_common", "givetake1_a", { ped = Barbeque.activeCustomer, duration = true })
+                local totalPrice = 0
+                for _i, order in ipairs(Barbeque.activeOrder) do
+                    totalPrice += order.price;
+                end
+                TriggerServerEvent("nk:barbeque:giveMoney", totalPrice)
                 cancelCustomerNpc(Barbeque.activeCustomer)
+                Barbeque.recognition += Config.recognitionUpValue;
             else
                 lib.notify({
                     title = 'İstenenlere sahip değilsin',

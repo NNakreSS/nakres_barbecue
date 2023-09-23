@@ -1,4 +1,4 @@
-local Props = {};
+local Props, customers = {}, {};
 local QBCore = exports['qb-core']:GetCoreObject();
 
 RegisterServerEvent('nk:barbeque:spawnNewObject');
@@ -36,6 +36,17 @@ AddEventHandler("nk:barbeque:addItem", function(item, count)
     addItemInventory(src, item, count);
 end)
 
+RegisterServerEvent('nk:barbeque:giveMoney');
+AddEventHandler("nk:barbeque:giveMoney", function(price)
+    local src = source;
+    giveMoney(src, price);
+end)
+
+RegisterServerEvent('nk:barbeque:deleteCustomer');
+AddEventHandler("nk:barbeque:deleteCustomer", function(id)
+    table.remove(customers, id);
+end)
+
 lib.callback.register('nk:barbeque:removeItemCheck', function(source, items)
     if QBCore then
         local Player = QBCore.Functions.GetPlayer(source);
@@ -57,6 +68,16 @@ lib.callback.register('nk:barbeque:removeItemCheck', function(source, items)
     return true;
 end)
 
+lib.callback.register('nk:barbeque:checkCustomer', function(source, ped)
+    for key, cPed in pairs(customers) do
+        if cPed == ped then
+            return false;
+        end
+    end
+    customers[#customers + 1] = ped;
+    return #customers;
+end)
+
 Citizen.CreateThread(function()
     if QBCore then
         local items = {
@@ -65,13 +86,13 @@ Citizen.CreateThread(function()
                 label = "BBQ",
                 weight = 15,
                 type = 'item',
-                image = "barbecue.png",
+                image = "",
                 unique = false,
                 useable = true,
                 shouldClose = true,
                 combinable = nil,
                 description = "Barbekü mangalı"
-            },
+            }
         };
         for _i, item in ipairs(Config.Foods) do
             items[item.item] = {
@@ -117,5 +138,12 @@ function addItemInventory(src, item, count)
     if QBCore then
         local Player = QBCore.Functions.GetPlayer(src);
         Player.Functions.AddItem(item, count);
+    end
+end
+
+function giveMoney(src, price)
+    if QBCore then
+        local Player = QBCore.Functions.GetPlayer(src);
+        Player.Functions.AddMoney("cash", price, "Barbeque ödemesi");
     end
 end
