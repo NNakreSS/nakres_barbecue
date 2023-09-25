@@ -59,7 +59,7 @@ function deleteBbqTable(currentCoord, model)
         local propVec = vector3(prop.coords.x, prop.coords.y, prop.coords.z)
         local dist = #(propVec - currentCoord)
         if dist <= 1.0 then
-            local entity = GetClosestObjectOfType(currentCoord, 1.5, GetHashKey(model), 0, 0, 0)
+            local entity = GetClosestObjectOfType(currentCoord, 1.5, model, 0, 0, 0)
             DeleteEntity(entity)
             table.remove(Props, i)
             break
@@ -98,8 +98,6 @@ function onDutyWaitCustomerNpc(entity)
                             if dist <= 2.5 then
                                 lookEntityToPlayer()
                                 addTargetCustomerNpc(outPed, "takeOrder")
-                                TaskStandStill(outPed, -1);
-                                TaskLookAtEntity(outPed, entity, -1);
                                 lib.notify({
                                     title = Lang.customer_arrived,
                                     type = 'info'

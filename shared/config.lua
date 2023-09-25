@@ -40,8 +40,8 @@ Config.Foods = {
             time = 15,
             valueUpSpeed = 0.5,
             valueDownSpeed = 0.3,
-            areaMoveSpeed = 0.5
-            -- img = "img/burger.webp",
+            areaMoveSpeed = 0.5,
+            img = "img/steak.webp",
         }
     },
     {
@@ -82,8 +82,8 @@ Config.Foods = {
             time = 15,
             valueUpSpeed = 0.5,
             valueDownSpeed = 0.3,
-            areaMoveSpeed = 0.5
-            -- img = "img/burger.webp",
+            areaMoveSpeed = 0.5,
+            img = "img/hotdog.webp",
         }
     },
     {

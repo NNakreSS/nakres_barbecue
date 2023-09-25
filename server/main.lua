@@ -84,13 +84,13 @@ lib.callback.register('nk:barbeque:checkCustomer', function(source, ped)
     return #customers;
 end)
 
-Citizen.CreateThread(function() -- only qb
+Citizen.CreateThread(function() -- only qb framework
     if Config.inventory == "qb" or (Config.inventory == "ox" and Config.framework == "qb") then
         local items = {
             [Config.BBQitemName] = {
                 name = Config.BBQitemName,
                 label = "BBQ",
-                weight = 10,
+                weight = 2000,
                 type = 'item',
                 image = "",
                 unique = false,
@@ -104,7 +104,7 @@ Citizen.CreateThread(function() -- only qb
             items[item.item] = {
                 name = item.item,
                 label = item.label,
-                weight = item.weight or 5,
+                weight = item.weight or 200,
                 type = 'item',
                 image = item.itemImg,
                 unique = false,
@@ -117,7 +117,7 @@ Citizen.CreateThread(function() -- only qb
                 items[val.item] = {
                     name = val.item,
                     label = val.label,
-                    weight = val.weight or 5,
+                    weight = val.weight or 200,
                     type = 'item',
                     image = val.itemImg,
                     unique = false,
