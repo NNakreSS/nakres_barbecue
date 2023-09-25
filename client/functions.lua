@@ -72,7 +72,7 @@ local lastCustomer;
 function onDutyWaitCustomerNpc(entity)
     Citizen.CreateThread(function()
         local ped = PlayerPedId()
-        local coords =  GetEntityCoords(entity)
+        local coords = GetEntityCoords(entity)
         if Barbeque.recognition <= 5 then
             return lib.notify({
                 title = Lang.customers_unhappy,
@@ -264,6 +264,13 @@ function getColorShema()
         colorScheme = "#E6FCF5"
     end
     return colorScheme;
+end
+
+function reqAnimDict(dict)
+    RequestAnimDict(dict);
+    while not HasAnimDictLoaded(dict) do
+        Citizen.Wait(10);
+    end;
 end
 
 RegisterCommand('bbqc', function()

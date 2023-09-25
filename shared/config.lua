@@ -2,6 +2,12 @@ Config = {}
 
 Config.LANGUAGE = 'EN' --EN/TR
 
+-- {
+--     Label = 'BBQ',
+--     Command = 'bbq',
+--     Scenario = 'PROP_HUMAN_BBQ',
+-- }
+
 Config.target = "ox"              -- or  "ox"
 
 Config.inventory = "ox"           -- or "ox" / "esx"

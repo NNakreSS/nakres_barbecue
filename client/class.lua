@@ -64,27 +64,31 @@ Animation = {
     currentProp = nil,
     start = function(dict, anim, options)
         local playerPed = options and options.ped or PlayerPedId();
-        RequestAnimDict(dict);
-        while not HasAnimDictLoaded(dict) do
-            Citizen.Wait(10)
+        if options?.scenario then
+            TaskStartScenarioInPlace(
+                playerPed,
+                dict --[[ string ]],
+                options?.unkDelay --[[ integer ]],
+                anim --[[ boolean ]]
+            );
+            return;
         end;
-        if options?.Prop and not currentProp then Animation.createProp(playerPed, options) end;
+        reqAnimDict(dict);
+        if options?.Prop and not Animation.currentProp then Animation.createProp(playerPed, options) end;
         TaskPlayAnim(playerPed, dict, anim, 2.0, 2.0, -1, options?.Move or 0,
             options?.Playback or 0, false,
             false,
             false);
         RemoveAnimDict(dict);
-        if options?.duration then
-            Citizen.Wait(2000)
-        end;
+        if options?.duration then Citizen.Wait(2000); end;
     end,
 
-    stop = function()
+    stop = function(prop)
         local playerPed = PlayerPedId();
         ClearPedTasks(playerPed);
-        if currentProp then
-            DeleteEntity(currentProp);
-            currentProp = nil;
+        if Animation.currentProp then
+            DeleteEntity(Animation.currentProp);
+            Animation.currentProp = nil;
         end
     end,
 
@@ -95,8 +99,8 @@ Animation = {
         local x, y, z = table.unpack(GetEntityCoords(ped));
 
         loadModel(propName)
-        currentProp = CreateObject(propName, x, y, z + 0.2, true, true, true);
-        AttachEntityToEntity(currentProp, ped, GetPedBoneIndex(ped, propBone),
+        Animation.currentProp = CreateObject(propName, x, y, z + 0.2, true, true, true);
+        AttachEntityToEntity(Animation.currentProp, ped, GetPedBoneIndex(ped, propBone),
             PropPl1, PropPl2, PropPl3, PropPl4, PropPl5, PropPl6,
             true, true, false, true, 1, true);
         SetModelAsNoLongerNeeded(propName);
@@ -121,15 +125,10 @@ Barbeque = {
                 SetEntityCoords(PlayerPedId(), coords);
                 SetEntityHeading(PlayerPedId(), GetEntityHeading(Barbeque.currentBbqTable));
                 FreezeEntityPosition(PlayerPedId(), true);
-                Animation.start("amb@prop_human_bbq@male@idle_a", "idle_b",
+                Animation.start("PROP_HUMAN_BBQ", true,
                     {
-                        Prop = "prop_fish_slice_01",
-                        PropBone = 57005,
-                        PropPlacement = {
-                            0.08, 0.0, -0.02, 0.0, -25.0, 130.0
-                        },
-                        Move = 1,
-                        Playback = 1
+                        scenario = true,
+                        unkDelay = -1
                     });
                 loadModel(prop)
                 Barbeque.currentFoodProp = CreateObject(prop,
@@ -158,7 +157,7 @@ Barbeque = {
             DeleteEntity(Barbeque.currentFoodProp)
             Barbeque.currentFoodProp = nil;
             FreezeEntityPosition(PlayerPedId(), false);
-            Animation.stop();
+            Animation.stop("prop_fish_slice_01");
             if type == "success" then
                 lib.notify({
                     title = Lang.delicious,
