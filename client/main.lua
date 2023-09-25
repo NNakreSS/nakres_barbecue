@@ -1,5 +1,6 @@
 Props = {};
 MiniGame = exports['nakres_skill_minigame']:GetMiniGame();
+Lang = (require 'shared.lang')[Config.LANGUAGE]
 
 Citizen.CreateThread(function()
     TriggerServerEvent('nk:barbeque:playerConnecting');
@@ -40,13 +41,22 @@ CreateThread(function()
     if Config.target == "qb" then
         exports['qb-target']:AddTargetModel(Config.BBQprop, {
             options = { {
-                label = 'Bbq Menu',
+                label = Lang.bbq_menu,
                 targeticon = 'fa-solid fa-fire-burner',
                 action = function(entity)
                     TriggerEvent('nk:barbeque:openBbqMenu', entity)
                 end
             } },
             distance = 1.5
+        })
+    elseif Config.target == "ox" then
+        exports.ox_target:addModel(Config.BBQprop, {
+            label = Lang.bbq_menu,
+            icon = 'fa-solid fa-fire-burner',
+            distance = 1.5,
+            onSelect = function(data)
+                TriggerEvent('nk:barbeque:openBbqMenu', data.entity)
+            end
         })
     end
 end)

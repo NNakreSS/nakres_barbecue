@@ -1,9 +1,19 @@
 {
+    "Lua.runtime.nonstandardSymbol": ["/**/", "`", "+=", "-=","*=", "/="],
+    "Lua.runtime.version": "Lua 5.4",
+    "Lua.diagnostics.globals": [
+        "lib"
+    ],
     "Lua.diagnostics.disable": [
         "err-nonstandard-symbol",
         "undefined-global",
         "lowercase-global",
         "unused-local",
-        "assign-type-mismatch"
+        "unknown-symbol",
+        "miss-symbol",
+        "exp-in-action",
+        "malformed-number",
+        "miss-end",
+        "redundant-value"
     ]
 }

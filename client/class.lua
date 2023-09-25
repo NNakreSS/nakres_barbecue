@@ -1,5 +1,4 @@
 BarbequeTable = {
-
     create = function(model, propmodel)
         AnimationOptions = {
             Prop = propmodel,
@@ -28,37 +27,36 @@ BarbequeTable = {
                 SetEntityHeading(object, heading);
                 PlaceObjectOnGroundProperly(object);
                 if IsControlPressed(0, 38) then
-                    DeleteEntity(object)
-                    local obj = CreateObjectNoOffset(model, coord, false, false, false)
-                    SetModelAsNoLongerNeeded(model)
-                    SetEntityHeading(obj, heading)
-                    PlaceObjectOnGroundProperly(obj)
-                    TriggerServerEvent('nk:barbeque:spawnNewObject', model, coord, heading)
+                    DeleteEntity(object);
+                    local obj = CreateObjectNoOffset(model, coord, false, false, false);
+                    SetModelAsNoLongerNeeded(model);
+                    SetEntityHeading(obj, heading);
+                    PlaceObjectOnGroundProperly(obj);
+                    TriggerServerEvent('nk:barbeque:spawnNewObject', model, coord, heading);
                     Animation.stop();
                     break;
                 elseif IsControlPressed(0, 73) then
-                    DeleteEntity(object)
+                    DeleteEntity(object);
                     Animation.stop();
                     break;
                 end
-                Wait(30)
+                Wait(30);
             end;
         end);
     end,
 
     remove = function(obj)
-        local currentCoord = GetEntityCoords(obj)
-        local model = GetEntityModel(obj)
-        TriggerServerEvent("nk:barbeque:deletePropCoord", currentCoord, model)
-        addItem("bbq_prop", 1)
+        local currentCoord = GetEntityCoords(obj);
+        local model = GetEntityModel(obj);
+        TriggerServerEvent("nk:barbeque:deletePropCoord", currentCoord, model);
+        addItem(Config.BBQitemName, 1);
         Barbeque.currentBbqTable = nil;
         Barbeque.dutyStatus = false;
         cancelCustomerNpc(Barbeque.waitCustomer);
         lib.notify({
-            title = 'Toparlandın !',
-            description = 'Mangalı toparladın',
+            title = Lang.you_have_collected,
             type = 'info'
-        })
+        });
     end
 }
 
@@ -69,16 +67,16 @@ Animation = {
         RequestAnimDict(dict);
         while not HasAnimDictLoaded(dict) do
             Citizen.Wait(10)
-        end
-        if options and options.Prop and not currentProp then Animation.createProp(playerPed, options) end
-        TaskPlayAnim(playerPed, dict, anim, 2.0, 2.0, -1, options and options.Move or 0,
-            options and options.Playback or 0, false,
+        end;
+        if options?.Prop and not currentProp then Animation.createProp(playerPed, options) end;
+        TaskPlayAnim(playerPed, dict, anim, 2.0, 2.0, -1, options?.Move or 0,
+            options?.Playback or 0, false,
             false,
             false);
         RemoveAnimDict(dict);
-        if options and options.duration then
+        if options?.duration then
             Citizen.Wait(2000)
-        end
+        end;
     end,
 
     stop = function()
@@ -149,8 +147,8 @@ Barbeque = {
                 )
             else
                 lib.notify({
-                    title = 'Yetersiz !',
-                    description = 'Bunun için gerekli mazemelere sahip değilsin',
+                    title = Lang.insufficient,
+                    description = Lang.lack_supplies,
                     type = 'error'
                 })
             end
@@ -163,15 +161,15 @@ Barbeque = {
             Animation.stop();
             if type == "success" then
                 lib.notify({
-                    title = 'Leziz !',
-                    description = 'Hazır onu yemek için müşteriler sabırsız...',
+                    title = Lang.delicious,
+                    description = Lang.impatient_customers,
                     type = 'success'
                 })
                 addItem(food, 1)
             else
                 lib.notify({
-                    title = 'Beceremedin !',
-                    description = 'Ateşte çok bekleterek tüm mazemeleri yaktın.',
+                    title = Lang.not_successful,
+                    description = Lang.burned_supplies,
                     type = 'error'
                 })
             end
@@ -182,46 +180,46 @@ Barbeque = {
             local schemaColor = getColorShema();
             lib.registerContext({
                 id = 'food_menu',
-                title = 'Yemekler',
+                title = Lang.meals,
                 options = getFoods(),
                 menu = "cookMenu",
             })
             lib.registerContext({
                 id = 'cookMenu',
-                title = 'Barbeque Menu',
+                title = Lang.barbecue_menu,
                 options = {
                     {
-                        title = 'Tanınırlık',
-                        description = 'Çevre tanırnırlığınız müşterilerin dikkatini çeker',
+                        title = Lang.visibility,
+                        description = Lang.customer_attention,
                         icon = 'ranking-star',
                         iconColor = schemaColor,
                         progress = Barbeque.recognition,
                         colorScheme = schemaColor,
                         metadata = {
-                            { label = 'Tanınırlık', value = "%" .. Barbeque.recognition },
+                            { label = Lang.visibility, value = "%" .. Barbeque.recognition },
                         },
                     },
                     {
-                        title = 'Mesai',
-                        description = 'İşe başla / ayrıl',
+                        title = Lang.shift,
+                        description = Lang.start_end_shift,
                         icon = 'circle',
                         iconColor = Barbeque.dutyStatus and 'green' or 'red',
                         onSelect = function()
                             Barbeque.duty.toggle()
                         end,
                         metadata = {
-                            { label = 'Durum', value = Barbeque.dutyStatus and "Aktif" or "Boşta" },
+                            { label = Lang.status, value = Barbeque.dutyStatus and Lang.active or Lang.idle },
                         },
                     },
                     {
-                        title = 'Mangalı Kaldır',
+                        title = Lang.remove_barbecue,
                         icon = 'box',
                         onSelect = function()
                             BarbequeTable.remove(Barbeque.currentBbqTable)
                         end,
                     },
                     {
-                        title = 'Birşeyler Pişir',
+                        title = Lang.cook_something,
                         menu = 'food_menu',
                         icon = 'bars'
                     },
@@ -236,15 +234,15 @@ Barbeque = {
             if not Barbeque.dutyStatus then
                 onDutyWaitCustomerNpc(Barbeque.currentBbqTable);
                 lib.notify({
-                    title = 'BBQ İşine başladın',
-                    description = 'Yoldan geçen müşterileri bekle , daha fazla müşteri çekmek için başarılı satışlar yap',
+                    title = Lang.start_bbq_job,
+                    description = Lang.wait_for_customers,
                     type = 'info'
                 })
             else
                 if Barbeque.waitCustomer then cancelCustomerNpc(Barbeque.waitCustomer) end
                 lib.notify({
-                    title = 'BBQ İşinden ayrıldın',
-                    description = 'Dilediğin zaman tekrar başlamak için mangalı kaldırmayı unutma',
+                    title = Lang.end_bbq_job,
+                    description = Lang.remember_pickup_bbq,
                     type = 'info'
                 })
             end
@@ -256,7 +254,7 @@ Barbeque = {
         take = function(entity)
             local plPed = PlayerPedId();
             Barbeque.activeCustomer = Barbeque.waitCustomer;
-            SetEntityHeading(Barbeque.waitCustomer, GetEntityHeading(plPed) - 180)
+            SetEntityHeading(Barbeque.waitCustomer, GetEntityHeading(plPed) - 180);
             lookEntityToPlayer();
             Animation.start("special_ped@jane@monologue_5@monologue_5c", "brotheradrianhasshown_2",
                 { ped = Barbeque.activeCustomer });
@@ -271,45 +269,45 @@ Barbeque = {
             local foods = {};
             for index, value in ipairs(Config.Foods) do
                 foods[index] = value;
-            end
-            local randomOrderCount = math.random(1, 3)
-            local orders           = {}
+            end;
+            local randomOrderCount = math.random(1, 3);
+            local orders           = {};
             local text             = '';
             for i = 1, randomOrderCount, 1 do
-                local random     = math.floor(math.random(1, #foods))
-                local randomFood = foods[random]
+                local random     = math.floor(math.random(1, #foods));
+                local randomFood = foods[random];
                 orders[i]        = {
-                    name = randomFood.name,
+                    label = randomFood.label,
                     item = randomFood.item,
                     price = randomFood.price,
-                }
-                text             = text .. string.format('\n- %s', randomFood.name)
-                table.remove(foods, random)
+                };
+                text             = text .. string.format('\n- %s', randomFood.label);
+                table.remove(foods, random);
             end
             FreezeEntityPosition(Barbeque.activeCustomer, true);
             local confirm = lib.alertDialog({
-                header = 'Sipariş',
+                header = Lang.order,
                 content = text,
                 centered = true,
                 cancel = true
-            })
+            });
             if Barbeque.activeCustomer then
                 if confirm == "confirm" then
-                    lib.showTextUI("### Beklenen siparişler\n" .. text, {
+                    lib.showTextUI("### " .. Lang.expected_orders .. text, {
                         position = "left-center",
                         icon = "clipboard"
-                    })
+                    });
                     Barbeque.activeOrder = orders;
                     TaskStandStill(Barbeque.activeCustomer, -1);
                     lib.notify({
-                        title = 'Siparişleri aldın hazırlamya başla',
+                        title = Lang.prepare_orders,
                         type = 'info'
-                    })
+                    });
                     removePedTarget(Barbeque.activeCustomer);
                     addTargetCustomerNpc(Barbeque.activeCustomer, "giveOrder");
                 else
                     Barbeque.recognition -= (Config.recognitionDownValue) / 2;
-                    cancelCustomerNpc(Barbeque.activeCustomer)
+                    cancelCustomerNpc(Barbeque.activeCustomer);
                 end
             end
             Animation.stop();
@@ -320,7 +318,7 @@ Barbeque = {
             local isHaveOrder = lib.callback.await('nk:barbeque:removeItemCheck', false, items);
             if isHaveOrder then
                 lib.notify({
-                    title = 'Siparişleri Teslim ettin',
+                    title = Lang.delivered_orders,
                     type = 'success'
                 })
                 Animation.start("mp_common", "givetake1_a")
@@ -329,12 +327,12 @@ Barbeque = {
                 for _i, order in ipairs(Barbeque.activeOrder) do
                     totalPrice += order.price;
                 end
-                TriggerServerEvent("nk:barbeque:giveMoney", totalPrice)
-                cancelCustomerNpc(Barbeque.activeCustomer)
+                TriggerServerEvent("nk:barbeque:giveMoney", totalPrice);
+                cancelCustomerNpc(Barbeque.activeCustomer);
                 Barbeque.recognition += Config.recognitionUpValue;
             else
                 lib.notify({
-                    title = 'İstenenlere sahip değilsin',
+                    title = Lang.lack_requirements,
                     type = 'error'
                 })
             end

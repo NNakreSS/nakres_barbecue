@@ -1,5 +1,10 @@
 local Props, customers = {}, {};
-local QBCore = exports['qb-core']:GetCoreObject();
+local QBCore = exports?['qb-core']:GetCoreObject();
+local ox_inventory = exports?.ox_inventory
+local ESX = nil;
+TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+local Lang = (require 'shared.lang')[Config.LANGUAGE]
+
 
 RegisterServerEvent('nk:barbeque:spawnNewObject');
 AddEventHandler('nk:barbeque:spawnNewObject', function(...)
@@ -48,18 +53,19 @@ AddEventHandler("nk:barbeque:deleteCustomer", function(id)
 end)
 
 lib.callback.register('nk:barbeque:removeItemCheck', function(source, items)
-    if QBCore then
-        local Player = QBCore.Functions.GetPlayer(source);
-        for i, key in ipairs(items) do
-            key.value = key.value or 1;
-            local haveItem = Player.Functions.GetItemByName(key.item);
-            if haveItem then
-                if haveItem.amount < key.value then
-                    return false;
-                end
-            else
+    local Player = Config.inventory == "qb" and QBCore.Functions.GetPlayer(source) or
+        Config.inventory == "esx" and ESX.GetPlayerFromId(source);
+    for i, key in ipairs(items) do
+        key.value = key.value or 1;
+        local amount = Config.inventory == "qb" and Player.Functions.GetItemByName(key.item)?.amount or
+            Config.inventory == "ox" and exports.ox_inventory:Search(source, 'count', key.item) or
+            Config.inventory == "esx" and Player.getInventoryItem(key.item)?.count;
+        if amount then
+            if amount < key.value then
                 return false;
             end
+        else
+            return false;
         end
     end
     for i, key in ipairs(items) do
@@ -78,26 +84,26 @@ lib.callback.register('nk:barbeque:checkCustomer', function(source, ped)
     return #customers;
 end)
 
-Citizen.CreateThread(function()
-    if QBCore then
+Citizen.CreateThread(function() -- only qb
+    if Config.inventory == "qb" or (Config.inventory == "ox" and Config.framework == "qb") then
         local items = {
-            ["bbq_prop"] = {
-                name = "bbq_prop",
+            [Config.BBQitemName] = {
+                name = Config.BBQitemName,
                 label = "BBQ",
-                weight = 15,
+                weight = 10,
                 type = 'item',
                 image = "",
                 unique = false,
                 useable = true,
                 shouldClose = true,
                 combinable = nil,
-                description = "Barbekü mangalı"
+                description = Lang.barbecue_grill
             }
         };
         for _i, item in ipairs(Config.Foods) do
             items[item.item] = {
                 name = item.item,
-                label = item.name,
+                label = item.label,
                 weight = item.weight or 5,
                 type = 'item',
                 image = item.itemImg,
@@ -118,7 +124,7 @@ Citizen.CreateThread(function()
                     useable = true,
                     shouldClose = true,
                     combinable = nil,
-                    description = val.description or 'Yemeklik malzemeler'
+                    description = val.description or Lang.cooking_supplies
                 };
             end
         end
@@ -126,24 +132,37 @@ Citizen.CreateThread(function()
     end
 end)
 
-
 function removeItem(source, item, count)
-    if QBCore then
+    if Config.inventory == "qb" then
         local Player = QBCore.Functions.GetPlayer(source);
         Player.Functions.RemoveItem(item, count);
+    elseif Config.inventory == "ox" then
+        ox_inventory:RemoveItem(source, item, count)
+    elseif Config.inventory == "esx" then
+        local xPlayer = ESX.GetPlayerFromId(source)
+        xPlayer.removeInventoryItem(item, count)
     end
 end
 
-function addItemInventory(src, item, count)
-    if QBCore then
-        local Player = QBCore.Functions.GetPlayer(src);
+function addItemInventory(source, item, count)
+    if Config.inventory == "qb" then
+        local Player = QBCore.Functions.GetPlayer(source);
         Player.Functions.AddItem(item, count);
+    elseif Config.inventory == "ox" then
+        ox_inventory:AddItem(source, item, count)
+    elseif Config.inventory == "esx" then
+        local xPlayer = ESX.GetPlayerFromId(source)
+        xPlayer.addInventoryItem(item, count)
     end
 end
 
-function giveMoney(src, price)
-    if QBCore then
-        local Player = QBCore.Functions.GetPlayer(src);
-        Player.Functions.AddMoney("cash", price, "Barbeque ödemesi");
+function giveMoney(source, price)
+    if Config.framework == "qb" then
+        local Player = QBCore.Functions.GetPlayer(source);
+        Player.Functions.AddMoney("cash", price, Lang.barbecue_payment);
+    elseif Config.framework == "esx" then
+        local xPlayer = ESX.GetPlayerFromId(source)
+        xPlayer.addAccountMoney("money", price)
+        -- xPlayer.addInventoryItem("cash", price)
     end
 end

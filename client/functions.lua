@@ -15,8 +15,8 @@ function getFoods()
     local foodOptions = {};
     for i, f in pairs(Config.Foods) do
         local food = {
-            title = f.name,
-            description = f.description or 'Leziz yemah',
+            title = f.label,
+            description = f.description or Lang.delicious_meals,
             icon = f.icon or 'check',
             arrow = false,
             metadata = f.metarials,
@@ -61,7 +61,7 @@ function deleteBbqTable(currentCoord, model)
         if dist <= 1.0 then
             local entity = GetClosestObjectOfType(currentCoord, 1.5, model, 0, 0, 0)
             DeleteEntity(entity)
-            print("deleted")
+            -- print("deleted")
             table.remove(Props, i)
             break
         end
@@ -72,10 +72,10 @@ local lastCustomer;
 function onDutyWaitCustomerNpc(entity)
     Citizen.CreateThread(function()
         local ped = PlayerPedId()
-        local coords = GetEntityCoords(entity)
+        local coords =  GetEntityCoords(entity)
         if Barbeque.recognition <= 5 then
             return lib.notify({
-                title = 'Müşterilerin memnun değil kimse senden satın almak istemiyor!',
+                title = Lang.customers_unhappy,
                 type = 'error'
             })
         end
@@ -102,7 +102,7 @@ function onDutyWaitCustomerNpc(entity)
                                 TaskStandStill(outPed, -1);
                                 TaskLookAtEntity(outPed, entity, -1);
                                 lib.notify({
-                                    title = 'Müşteri geldi !',
+                                    title = Lang.customer_arrived,
                                     type = 'info'
                                 })
                                 startWaitCustomerTimer(outPed);
@@ -116,7 +116,7 @@ function onDutyWaitCustomerNpc(entity)
                 if HasEntityBeenDamagedByAnyPed(Barbeque.activeCustomer) then
                     cancelCustomerNpc(Barbeque.activeCustomer)
                     lib.notify({
-                        title = 'Müşteriyi kaçırdın !',
+                        title = Lang.missed_customer,
                         type = 'error'
                     })
                     Barbeque.recognition -= Config.recognitionDownValue * 2;
@@ -132,8 +132,8 @@ function startWaitCustomerTimer(customer)
         Wait(180000)
         if Barbeque.dutyStatus and Barbeque.activeCustomer == customer then
             lib.notify({
-                title = 'Kaçırdın !',
-                description = "Çok beklettiğin için müşteri uzaklaştı",
+                title = Lang.missed,
+                description = Lang.customer_left_due_to_wait,
                 type = 'error'
             })
             Barbeque.recognition -= Config.recognitionDownValue
@@ -160,40 +160,66 @@ end
 function addTargetCustomerNpc(npc, _type)
     if Config.target == "qb" then
         if _type == 'takeOrder' then
-            Barbeque.activeTarget = "Sipariş Al"
+            Barbeque.activeTarget = Lang.take_order
             exports['qb-target']:AddTargetEntity(npc, {
                 options = { {
-                    label = 'Sipariş Al',
+                    label = Lang.take_order,
                     targeticon = 'fa-solid fa-comments',
-                    action = function(entity)
+                    action = function()
                         TriggerEvent('nk:barbeque:takeOrder', npc)
                     end
                 } },
                 distance = 2
             })
         elseif _type == 'giveOrder' then
-            Barbeque.activeTarget = "Sipariş Teslim";
+            Barbeque.activeTarget = Lang.deliver_order;
             exports['qb-target']:AddTargetEntity(npc, {
                 options = { {
-                    label = 'Sipariş Teslim',
+                    label = Lang.deliver_order,
                     targeticon = 'fa-solid fa-box',
-                    action = function(entity)
+                    action = function()
                         TriggerEvent('nk:barbeque:giveOrder', npc)
                     end
                 } },
                 distance = 2
             })
         end
+    elseif Config.target == "ox" then
+        if _type == 'takeOrder' then
+            Barbeque.activeTarget = "takeOrder"
+            exports.ox_target:addLocalEntity(npc, {
+                label = Lang.take_order,
+                name = "takeOrder",
+                icon = 'fa-solid fa-comments',
+                distance = 2,
+                onSelect = function()
+                    TriggerEvent('nk:barbeque:takeOrder', npc)
+                end
+            })
+        elseif _type == 'giveOrder' then
+            Barbeque.activeTarget = "giveOrder";
+            exports.ox_target:addLocalEntity(npc, {
+                label = Lang.deliver_order,
+                name = "giveOrder",
+                icon = 'fa-solid fa-box',
+                distance = 2,
+                onSelect = function()
+                    TriggerEvent('nk:barbeque:giveOrder', npc)
+                end
+            })
+        end
     end
 end
 
 function removePedTarget(npc)
-    local label = Barbeque.activeTarget;
+    local targetName = Barbeque.activeTarget;
     if npc then
         if Config.target == "qb" then
-            exports['qb-target']:RemoveTargetEntity(npc, label or 'Sipariş Al');
-            Barbeque.activeTarget = nil;
+            exports['qb-target']:RemoveTargetEntity(npc, targetName);
+        elseif Config.target == "ox" then
+            exports.ox_target:removeLocalEntity(npc, targetName)
         end
+        Barbeque.activeTarget = nil;
     end
 end
 
@@ -215,7 +241,7 @@ function lookEntityToPlayer()
 end
 
 function getColorShema()
-    local colorScheme = "";
+    local colorScheme;
     if Barbeque.recognition >= 90 then
         colorScheme = "#087F5B"
     elseif Barbeque.recognition >= 80 then
