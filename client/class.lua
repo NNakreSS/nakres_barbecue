@@ -64,15 +64,6 @@ Animation = {
     currentProp = nil,
     start = function(dict, anim, options)
         local playerPed = options and options.ped or PlayerPedId();
-        if options?.scenario then
-            TaskStartScenarioInPlace(
-                playerPed,
-                dict --[[ string ]],
-                options?.unkDelay --[[ integer ]],
-                anim --[[ boolean ]]
-            );
-            return;
-        end;
         reqAnimDict(dict);
         if options?.Prop and not Animation.currentProp then Animation.createProp(playerPed, options) end;
         TaskPlayAnim(playerPed, dict, anim, 2.0, 2.0, -1, options?.Move or 0,
@@ -83,7 +74,7 @@ Animation = {
         if options?.duration then Citizen.Wait(2000); end;
     end,
 
-    stop = function(prop)
+    stop = function()
         local playerPed = PlayerPedId();
         ClearPedTasks(playerPed);
         if Animation.currentProp then
@@ -125,10 +116,13 @@ Barbeque = {
                 SetEntityCoords(PlayerPedId(), coords);
                 SetEntityHeading(PlayerPedId(), GetEntityHeading(Barbeque.currentBbqTable));
                 FreezeEntityPosition(PlayerPedId(), true);
-                Animation.start("PROP_HUMAN_BBQ", true,
+                Animation.start("amb@prop_human_bbq@male@idle_a", "idle_b",
                     {
-                        scenario = true,
-                        unkDelay = -1
+                        Prop = "prop_fish_slice_01",
+                        PropBone = 57005,
+                        PropPlacement = { 0.08, 0.0, -0.02, 0.0, -25.0, 130.0 },
+                        Move = 1,
+                        Playback = 1
                     });
                 loadModel(prop)
                 Barbeque.currentFoodProp = CreateObject(prop,
@@ -157,7 +151,7 @@ Barbeque = {
             DeleteEntity(Barbeque.currentFoodProp)
             Barbeque.currentFoodProp = nil;
             FreezeEntityPosition(PlayerPedId(), false);
-            Animation.stop("prop_fish_slice_01");
+            Animation.stop();
             if type == "success" then
                 lib.notify({
                     title = Lang.delicious,

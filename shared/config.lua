@@ -1,18 +1,12 @@
 Config = {}
 
-Config.LANGUAGE = 'EN' --EN/TR
+Config.LANGUAGE = 'EN'            --EN/TR
 
--- {
---     Label = 'BBQ',
---     Command = 'bbq',
---     Scenario = 'PROP_HUMAN_BBQ',
--- }
+Config.target = "ox"              --"qb"  or  "ox"
 
-Config.target = "ox"              -- or  "ox"
+Config.inventory = "qb"           --"qb" / "ox" / "esx"
 
-Config.inventory = "ox"           -- or "ox" / "esx"
-
-Config.framework = "qb"           -- or "esx"
+Config.framework = "qb"           --"qb" or "esx"
 
 Config.BBQprop = { "prop_bbq_5" } -- if false onlySpawnBBQ
 

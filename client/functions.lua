@@ -59,9 +59,8 @@ function deleteBbqTable(currentCoord, model)
         local propVec = vector3(prop.coords.x, prop.coords.y, prop.coords.z)
         local dist = #(propVec - currentCoord)
         if dist <= 1.0 then
-            local entity = GetClosestObjectOfType(currentCoord, 1.5, model, 0, 0, 0)
+            local entity = GetClosestObjectOfType(currentCoord, 1.5, GetHashKey(model), 0, 0, 0)
             DeleteEntity(entity)
-            -- print("deleted")
             table.remove(Props, i)
             break
         end
@@ -212,12 +211,11 @@ function addTargetCustomerNpc(npc, _type)
 end
 
 function removePedTarget(npc)
-    local targetName = Barbeque.activeTarget;
     if npc then
         if Config.target == "qb" then
-            exports['qb-target']:RemoveTargetEntity(npc, targetName);
+            exports['qb-target']:RemoveTargetEntity(npc, Barbeque.activeTarget);
         elseif Config.target == "ox" then
-            exports.ox_target:removeLocalEntity(npc, targetName)
+            exports.ox_target:removeLocalEntity(npc, Barbeque.activeTarget)
         end
         Barbeque.activeTarget = nil;
     end
