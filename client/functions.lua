@@ -13,7 +13,7 @@ end
 
 function getFoods()
     local foodOptions = {};
-    for i, f in pairs(Config.Foods) do
+    for i, f in pairs(Foods) do
         local food = {
             title = f.label,
             description = f.description or Lang.delicious_meals,
@@ -84,7 +84,7 @@ function onDutyWaitCustomerNpc(entity)
             if dist >= 30 then return Barbeque.duty.toggle(); end
             if Barbeque.dutyStatus and not Barbeque.waitCustomer then
                 sleep = 1000
-                local retval, outPed = GetClosestPed(coords.x, coords.y, coords.z, (Barbeque.recognition / 1.5), 1, 0, 1,
+                local retval, outPed = GetClosestPed(coords.x, coords.y, coords.z, (Barbeque.recognition / 2.0), 1, 0, 1,
                     1,
                     26)
 
@@ -269,6 +269,3 @@ function reqAnimDict(dict)
     end;
 end
 
-RegisterCommand('bbqc', function()
-    BarbequeTable.create("prop_bbq_5", "prop_tool_box_06");
-end)

@@ -1,6 +1,7 @@
 Props = {};
 MiniGame = exports['nakres_skill_minigame']:GetMiniGame();
-Lang = (require 'shared.lang')[Config.LANGUAGE]
+Lang = (require 'shared.lang')[Config.LANGUAGE];
+Foods = require 'shared.foods';
 
 Citizen.CreateThread(function()
     TriggerServerEvent('nk:barbeque:playerConnecting');
@@ -35,6 +36,11 @@ end)
 RegisterNetEvent('nk:barbeque:giveOrder');
 AddEventHandler('nk:barbeque:giveOrder', function(entity)
     Barbeque.order.give(entity);
+end)
+
+RegisterNetEvent('nk:barbeque:spawnBbq');
+AddEventHandler('nk:barbeque:spawnBbq', function()
+    BarbequeTable.create(Config.BBQprop, Config.BbqtoolBox);
 end)
 
 CreateThread(function()

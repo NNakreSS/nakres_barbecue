@@ -4,6 +4,7 @@ local ox_inventory = exports?.ox_inventory
 local ESX = nil;
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 local Lang = (require 'shared.lang')[Config.LANGUAGE]
+local Foods = require 'shared.foods';
 
 
 RegisterServerEvent('nk:barbeque:spawnNewObject');
@@ -50,6 +51,11 @@ end)
 RegisterServerEvent('nk:barbeque:deleteCustomer');
 AddEventHandler("nk:barbeque:deleteCustomer", function(id)
     table.remove(customers, id);
+end)
+
+RegisterServerEvent('nk:barbeque:removeItem');
+AddEventHandler("nk:barbeque:removeItem", function(item, count)
+    removeItem(source, item, count);
 end)
 
 lib.callback.register('nk:barbeque:removeItemCheck', function(source, items)
@@ -100,7 +106,8 @@ Citizen.CreateThread(function() -- only qb framework
                 description = Lang.barbecue_grill
             }
         };
-        for _i, item in ipairs(Config.Foods) do
+        for _i, item in ipairs(Foods) do
+            print(item.item)
             items[item.item] = {
                 name = item.item,
                 label = item.label,
@@ -111,9 +118,10 @@ Citizen.CreateThread(function() -- only qb framework
                 useable = true,
                 shouldClose = true,
                 combinable = nil,
-                description = item.description or 'Leziz bir yemek'
+                description = item.description or Lang.delicious_meals
             };
             for key, val in pairs(item.metarials) do
+                print(val.item)
                 items[val.item] = {
                     name = val.item,
                     label = val.label,
@@ -166,3 +174,16 @@ function giveMoney(source, price)
         -- xPlayer.addInventoryItem("cash", price)
     end
 end
+
+Citizen.CreateThread(function()
+    if Config.framework == "qb" then
+        QBCore.Functions.CreateUseableItem(Config.BBQitemName, function(source, item)
+            TriggerClientEvent("nk:barbeque:spawnBbq", source)
+        end)
+    elseif Config.framework == "esx" then
+        ESX.RegisterUsableItem(Config.BBQitemName
+        , function(source)
+            TriggerClientEvent("nk:barbeque:spawnBbq", source)
+        end)
+    end
+end)

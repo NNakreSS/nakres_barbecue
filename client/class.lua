@@ -27,6 +27,7 @@ BarbequeTable = {
                 SetEntityHeading(object, heading);
                 PlaceObjectOnGroundProperly(object);
                 if IsControlPressed(0, 38) then
+                    TriggerServerEvent('nk:barbeque:removeItem', Config.BBQitemName, 1);
                     DeleteEntity(object);
                     local obj = CreateObjectNoOffset(model, coord, false, false, false);
                     SetModelAsNoLongerNeeded(model);
@@ -260,7 +261,7 @@ Barbeque = {
             };
             Animation.start("missheistdockssetup1clipboard@base", "base", AnimationOptions);
             local foods = {};
-            for index, value in ipairs(Config.Foods) do
+            for index, value in ipairs(Foods) do
                 foods[index] = value;
             end;
             local randomOrderCount = math.random(1, 3);
@@ -307,6 +308,7 @@ Barbeque = {
         end,
 
         give = function(entity)
+            SetEntityHeading(Barbeque.waitCustomer, GetEntityHeading(PlayerPedId()) - 180);
             local items = Barbeque.activeOrder;
             local isHaveOrder = lib.callback.await('nk:barbeque:removeItemCheck', false, items);
             if isHaveOrder then
@@ -330,5 +332,5 @@ Barbeque = {
                 })
             end
         end
-    }
+    },
 }
