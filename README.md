@@ -43,7 +43,7 @@ Bu script, FiveM platformunda kullanılmak üzere geliştirilmiş bir BBQ satı�
 },
 ```
 > [!NOTE]
-> Görselleri uygun şekilde sağladığınızdan ve envanter sistemizde foods.lua içindeki itemImg alanını doğru bir şekilde belirttiğinizden emin olun. Tüm itemler otomatik olarak oluşturulacaktır.
+> Görselleri uygun şekilde sağladığınızdan ve envanter sisteminizde foods.lua içindeki itemImg alanını doğru bir şekilde belirttiğinizden emin olun. Tüm itemler otomatik olarak oluşturulacaktır.
 
 ## Özellikler
 
@@ -65,18 +65,60 @@ Bu script, FiveM platformunda kullanılmak üzere geliştirilmiş bir BBQ satı�
 
 ## Notlar
 
-- Scripti kullanırken olası hatalar veya sorunlar için [GitHub Issues](https://github.com/kullanici_adi/bbq_satis_script/issues) sayfasını kontrol edin.
+- Scripti kullanırken olası hatalar veya sorunlar için [GitHub Issues](https://github.com/NNakreSS/nakres_barbeque) sayfasını kontrol edin.
 
 - Daha fazla özelleştirme yapmak istiyorsanız, scriptin kaynak kodunu inceleyebilir ve ihtiyacınıza göre düzenleyebilirsiniz.
 
 Bu README dosyası, BBQ satış scripti kullanımı hakkında temel bilgileri içermektedir. Daha fazla bilgi ve detaylar için scriptin kaynak kodunu inceleyebilirsiniz.
 
+# [EN]
 
-# [ENG]
+This script contains an advanced BBQ sales system developed for use on the FiveM platform. This system allows players to create barbecue objects, manage their business, and sell food by taking orders from nearby NPCs.
 
-# BBQ Sales Script README
+## English Installation Guide
 
-This script includes an advanced BBQ sales system developed for use on the FiveM platform. This system allows players to create barbecue objects, manage their business, and sell food by taking orders from nearby NPCs.
+**Prerequisites:**
+Make sure to first install the `nakres_skill_minigame` script on your server.
+
+**Installation Steps:**
+1. Place the main script folder in the resources directory of your server.
+2. Inside the `shared` folder of the script, update the `Config.lua` file according to your server settings.
+3. Add new food items in the `foods.lua` file located under the `shared` folder. You can use the following example:
+
+    ```lua
+    {
+        label = "Steak",
+        item = "steak",
+        price = 250,
+        prop = "prop_cs_steak",
+        itemImg = "",
+        weight = 5,
+        description = "You ate a delicious Steak",
+        icon = Config.tartget == "qb" and "fa-solid fa-drumstick-bite" or "drumstick-bite",
+        materials = {
+            {
+                label = "Meat",
+                item = "raw_meat",
+                value = 1,
+                description = "Raw meat waiting to be cooked",
+                itemImg = ""
+            }
+        },
+        skillBarData = {
+            difficultyFactor = 0.98,
+            lineSpeedUp = 1,
+            time = 15,
+            valueUpSpeed = 0.5,
+            valueDownSpeed = 0.3,
+            areaMoveSpeed = 0.5,
+            img = "img/steak.webp",
+        }
+    },
+    ```
+
+    Ensure you provide appropriate visuals for the items, and specify the image name in your inventory system using the `itemImg` field in `foods.lua`.
+
+    All items will be automatically generated.
 
 ## Features
 
@@ -98,9 +140,8 @@ This script includes an advanced BBQ sales system developed for use on the FiveM
 
 ## Notes
 
-- Check the [GitHub Issues](https://github.com/username/bbq_sales_script/issues) page for possible errors or issues while using the script.
+- Check the [GitHub Issues](https://github.com/NNakreSS/nakres_barbeque) page for possible errors or issues while using the script.
 
 - If you want to customize the script further, you can examine the source code and make modifications according to your needs.
 
 This README file provides basic information about using the BBQ sales script. For more details and information, you can explore the source code of the script.
-
