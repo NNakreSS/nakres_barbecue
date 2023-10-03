@@ -42,7 +42,7 @@ Bu script, FiveM platformunda kullanılmak üzere geliştirilmiş bir BBQ satı�
     }
 },
 ```
-> [!NOT]
+> [!NOTE]
 > Görselleri uygun şekilde sağladığınızdan ve envanter sistemizde foods.lua içindeki itemImg alanını doğru bir şekilde belirttiğinizden emin olun. Tüm itemler otomatik olarak oluşturulacaktır.
 
 ## Özellikler
