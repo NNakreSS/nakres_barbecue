@@ -68,7 +68,7 @@ Bu script, FiveM platformunda kullanılmak üzere geliştirilmiş bir BBQ satı�
 
 ## Notlar
 
-- Scripti kullanırken olası hatalar veya sorunlar için [GitHub Issues](https://github.com/NNakreSS/nakres_barbeque) sayfasını kontrol edin.
+- Scripti kullanırken olası hatalar veya sorunlar için [GitHub](https://github.com/NNakreSS/nakres_barbeque) sayfasını kontrol edin.
 
 - Daha fazla özelleştirme yapmak istiyorsanız, scriptin kaynak kodunu inceleyebilir ve ihtiyacınıza göre düzenleyebilirsiniz.
 
@@ -145,7 +145,7 @@ This script contains an advanced BBQ sales system developed for use on the FiveM
 
 ## Notes
 
-- Check the [GitHub Issues](https://github.com/NNakreSS/nakres_barbeque) page for possible errors or issues while using the script.
+- Check the [GitHub](https://github.com/NNakreSS/nakres_barbeque) page for possible errors or issues while using the script.
 
 - If you want to customize the script further, you can examine the source code and make modifications according to your needs.
 
