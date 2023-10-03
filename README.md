@@ -1,4 +1,4 @@
-#TR
+# [TR]
 
 Bu script, FiveM platformunda kullanılmak üzere geliştirilmiş bir BBQ satış sistemini içerir. Bu sistem, oyuncuların barbekü objeleri oluşturmasına, işlerini yönetmelerine ve çevredeki NPC'lerden sipariş alarak yiyecek satmalarına olanak tanır.
 
@@ -29,7 +29,7 @@ Bu script, FiveM platformunda kullanılmak üzere geliştirilmiş bir BBQ satı�
 Bu README dosyası, BBQ satış scripti kullanımı hakkında temel bilgileri içermektedir. Daha fazla bilgi ve detaylar için scriptin kaynak kodunu inceleyebilirsiniz.
 
 
-#ENG
+# [ENG]
 
 # BBQ Sales Script README
 
