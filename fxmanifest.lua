@@ -1,8 +1,8 @@
 fx_version 'cerulean'
 game 'gta5'
 
-name "nakres_barbeque"
-description "Barbeque make and sales "
+name "nakres_barbecue"
+description "Barbecue make and sales "
 author "NakreS"
 version "1.0.0"
 
