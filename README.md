@@ -5,7 +5,7 @@ Bu script, FiveM platformunda kullanılmak üzere geliştirilmiş bir BBQ satı�
 ### Türkçe Kurulum Kılavuzu
 
 **Ön Koşullar:**
-İlk olarak, sunucunuza [nakres_skill_minigame](https://github.com/NNakreSS/nakres_skill_minigame) betiğini kurduğunuzdan emin olun.
+İlk olarak, sunucunuza [nakres_skill_minigame](https://github.com/NNakreSS/nakres_skill_minigame) ve [ox_lib](https://github.com/overextended/ox_lib) betiklerini kurduğunuzdan emin olun.
 
 **Kurulum Adımları:**
 1. Ana betik klasörünü sunucunuzun resources dizinine yerleştirin.
@@ -82,7 +82,7 @@ This script contains an advanced BBQ sales system developed for use on the FiveM
 ## English Installation Guide
 
 **Prerequisites:**
-Make sure to first install the [nakres_skill_minigame](https://github.com/NNakreSS/nakres_skill_minigame) script on your server.
+Make sure to first install the [nakres_skill_minigame](https://github.com/NNakreSS/nakres_skill_minigame) and [ox_lib](https://github.com/overextended/ox_lib) scripts on your server.
 
 **Installation Steps:**
 1. Place the main script folder in the resources directory of your server.
