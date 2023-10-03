@@ -45,6 +45,10 @@ Bu script, FiveM platformunda kullanılmak üzere geliştirilmiş bir BBQ satı�
 > [!NOTE]
 > Görselleri uygun şekilde sağladığınızdan ve envanter sisteminizde `foods.lua` içindeki `itemImg` alanını doğru bir şekilde belirttiğinizden emin olun. Tüm itemler otomatik olarak oluşturulacaktır.
 
+
+> [!WARN]
+> ox-inventory kullanan QB paketleri için itemlerin otomatik olarak oluşturulabilmesi için betiği startladıktan sonra envanteri 2 kere restartlayın. 
+
 ## Özellikler
 
 - **Barbekü Objeleri:** Script, oyuncuların barbekü objelerini oluşturmak için `bbq` itemini kullanmalarını sağlar. Bu objeler üzerinden işlemler gerçekleştirilir (başlatma, pişirme, toplama, vb.).
