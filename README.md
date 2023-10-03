@@ -2,6 +2,49 @@
 
 Bu script, FiveM platformunda kullanılmak üzere geliştirilmiş bir BBQ satış sistemini içerir. Bu sistem, oyuncuların barbekü objeleri oluşturmasına, işlerini yönetmelerine ve çevredeki NPC'lerden sipariş alarak yiyecek satmalarına olanak tanır.
 
+### Türkçe Kurulum Kılavuzu
+
+**Ön Koşullar:**
+İlk olarak, sunucunuza `nakres_skill_minigame` betiğini kurduğunuzdan emin olun.
+
+**Kurulum Adımları:**
+1. Ana betik klasörünü sunucunuzun resources dizinine yerleştirin.
+2. Betiğin `shared` klasörü içindeki `Config.lua` dosyasını sunucu ayarlarınıza göre güncelleyin.
+3. `shared` klasörü altındaki `foods.lua` dosyasına yeni yiyecekleri ekleyin. Aşağıdaki örneği kullanabilirsiniz:
+
+```lua
+{
+    label = "Biftek",
+    item = "biftek",
+    price = 250,
+    prop = "prop_cs_steak",
+    itemImg = "",
+    weight = 5,
+    description = "Lezzetli bir biftek yediniz",
+    icon = Config.tartget == "qb" and "fa-solid fa-drumstick-bite" or "drumstick-bite",
+    materials = {
+        {
+            label = "Et",
+            item = "raw_meat",
+            value = 1,
+            description = "Pişmeyi bekleyen et",
+            itemImg = ""
+        }
+    },
+    skillBarData = {
+        difficultyFactor = 0.98,
+        lineSpeedUp = 1,
+        time = 15,
+        valueUpSpeed = 0.5,
+        valueDownSpeed = 0.3,
+        areaMoveSpeed = 0.5,
+        img = "img/biftek.webp",
+    }
+},
+```
+> [!NOT]
+> Görselleri uygun şekilde sağladığınızdan ve envanter sistemizde foods.lua içindeki itemImg alanını doğru bir şekilde belirttiğinizden emin olun. Tüm itemler otomatik olarak oluşturulacaktır.
+
 ## Özellikler
 
 - **Barbekü Objeleri:** Script, oyuncuların barbekü objelerini oluşturmak için `bbq` itemini kullanmalarını sağlar. Bu objeler üzerinden işlemler gerçekleştirilir (başlatma, pişirme, toplama, vb.).
