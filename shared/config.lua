@@ -7,9 +7,9 @@ Config = {
 
     framework = "qb",                --"qb" or "esx"
 
-    BBQprop = "prop_bbq_5",          -- if false onlySpawnBBQ
+    BBQprop = "prop_bbq_5",          
 
-    BbqtoolBox = "prop_tool_box_06", -- if false onlySpawnBBQ
+    BbqtoolBox = "prop_tool_box_06", 
 
     BBQitemName = "bbq_prop",
 
