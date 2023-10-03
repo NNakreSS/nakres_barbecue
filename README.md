@@ -46,7 +46,7 @@ Bu script, FiveM platformunda kullanılmak üzere geliştirilmiş bir BBQ satı�
 > Görselleri uygun şekilde sağladığınızdan ve envanter sisteminizde `foods.lua` içindeki `itemImg` alanını doğru bir şekilde belirttiğinizden emin olun. Tüm itemler otomatik olarak oluşturulacaktır.
 
 
-> [!WARN]
+> [!IMPORTANT]
 > ox-inventory kullanan QB paketleri için itemlerin otomatik olarak oluşturulabilmesi için betiği startladıktan sonra envanteri 2 kere restartlayın. 
 
 ## Özellikler
@@ -122,6 +122,10 @@ Make sure to first install the [nakres_skill_minigame](https://github.com/NNakre
 > [!NOTE]
 > Ensure you provide appropriate visuals for the items, and specify the image name in your inventory system using the `itemImg` field in `foods.lua`.
   All items will be automatically generated.
+
+> [!IMPORTANT]
+> For QB packages using ox-inventory, after starting the script, restart the inventory twice to automatically generate items.
+
 
 ## Features
 
