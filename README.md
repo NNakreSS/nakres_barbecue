@@ -1,4 +1,4 @@
-<iframe width="974" height="548" src="https://www.youtube.com/embed/_akblmM_ySo" title="NakreS Barbecue" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+[Youtube](https://youtu.be/_akblmM_ySo)
 
 
 # [TR]
